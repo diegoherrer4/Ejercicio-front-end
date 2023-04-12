@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
+import React, { useState } from "react";
 import ApiService from "../api/services/api.services";
-
+import CustomDatePicker from "./CustomDatePicker";
 
 const OrderTestTable = () => {
   const [orderTests, setOrderTests] = useState([]);
@@ -10,20 +9,6 @@ const OrderTestTable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-
-  useEffect(() => {
-    const fetchOrderTests = async () => {
-      setLoading(true);
-      const response = await ApiService.getOrderTests(
-        startDate?.toISOString(),
-        endDate?.toISOString()
-      );
-      setOrderTests(response);
-      setLoading(false);
-    };
-
-    fetchOrderTests();
-  }, [startDate, endDate]);
 
   const debouncedFetchOrderTests = debounce(async () => {
     setLoading(true);
@@ -41,14 +26,13 @@ const OrderTestTable = () => {
       debouncedFetchOrderTests();
     }
   };
-  
+
   const handleEndDateChange = (date) => {
     setEndDate(date);
     if (startDate && date) {
       debouncedFetchOrderTests();
     }
   };
-  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -62,19 +46,16 @@ const OrderTestTable = () => {
   return (
     <>
       <div>
-      <DatePicker
-  selected={startDate}
-  maxDate={new Date()}
-  onChange={handleStartDateChange}
-  placeholderText="Sample Collected Start Date"
-/>
-<DatePicker
-  selected={endDate}
-  maxDate={new Date()}
-  onChange={handleEndDateChange}
-  placeholderText="Sample Collected End Date"
-/>
-
+        <CustomDatePicker
+          selected={startDate}
+          onChange={handleStartDateChange}
+          placeholderText="Sample Collected Start Date"
+        />
+        <CustomDatePicker
+          selected={endDate}
+          onChange={handleEndDateChange}
+          placeholderText="Sample Collected End Date"
+        />
       </div>
       {loading ? (
         <div>Loading...</div>
@@ -96,22 +77,34 @@ const OrderTestTable = () => {
               </tr>
             </thead>
             <tbody>
-              {orderTests
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((orderTest) => (
-                  <tr key={orderTest.orderTestId}>
-                    <td>{orderTest.orderTestId}</td>
-                    <td>{orderTest.patientId}</td>
-                    <td>{orderTest.patientAgeRange}</td>
-                    <td>{orderTest.patientRegion}</td>
-                    <td>{orderTest.orderTestCategory}</td>
-                    <td>{orderTest.orderTestType}</td>
-                    <td>{orderTest.sampleCollectedDate}</td>
-                    <td>{orderTest.resultReportDate}</td>
-                    <td>{orderTest.orderTestResult}</td>
-                    <td>{orderTest.orderTestCreatedAt}</td>
-                  </tr>
-                ))}
+              {orderTests?.length > 0 ? (
+                orderTests
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((orderTest) => (
+                    <tr key={orderTest.orderTestId}>
+                      <td>{orderTest.orderTestId}</td>
+                      <td>{orderTest.patientId}</td>
+                      <td>{orderTest.patientAgeRange}</td>
+                      <td>{orderTest.patientRegion}</td>
+                      <td>{orderTest.orderTestCategory}</td>
+                      <td>{orderTest.orderTestType}</td>
+                      <td>{orderTest.orderTestId}</td>
+                      <td>{orderTest.patientId}</td>
+                      <td>{orderTest.patientAgeRange}</td>
+                      <td>{orderTest.patientRegion}</td>
+                      <td>{orderTest.orderTestCategory}</td>
+                      <td>{orderTest.orderTestType}</td>
+                      <td>{orderTest.sampleCollectedDate}</td>
+                      <td>{orderTest.resultReportDate}</td>
+                      <td>{orderTest.orderTestResult}</td>
+                      <td>{orderTest.orderTestCreatedAt}</td>
+                    </tr>
+                  ))
+              ) : (
+                <tr>
+                  <td colSpan="10">No data found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
           <div>
@@ -166,15 +159,15 @@ const OrderTestTable = () => {
 };
 
 function debounce(func, delay) {
-let timer;
-return function () {
-const context = this;
-const args = arguments;
-clearTimeout(timer);
-timer = setTimeout(() => {
-func.apply(context, args);
-}, delay);
-};
+  let timer;
+  return function () {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(context, args);
+    }, delay);
+  };
 }
 
 export default OrderTestTable;
